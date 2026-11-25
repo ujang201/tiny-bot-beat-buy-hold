@@ -1,0 +1,20 @@
+Build a tiny paper-trading bot for the make.fun bounty "Tiny Bot, Easy $2:
+Beat Buy-and-Hold on Solana" (u-gorun-gadget-tiny-bot-easy-2-beat-a48f3ce1).
+
+The bot is main.ts. It speaks the agent-fun/bars-replay/v1 line protocol
+over stdin/stdout: hello, then one batch of hourly bars per line, and it
+answers each batch with one reply of orders (buy/sell) before the next line.
+
+Strategy, decided after testing on the dev window with the kit's local
+grader: mean reversion, not trend-chasing. Every trend entry I tried
+(EMA crossover, Donchian breakout, rising-EMA regime) bought the top of a
+dead-cat bounce and lost; the oversold dip is the only edge that survived
+split-half checks. So: buy when RSI(14) is at or below 28, exit on take
+profit +3.5%, stop loss -1.2%, RSI back to 55, close above the 20-bar
+average, or after 8 bars held. Size at most 12% of equity per symbol, no
+shorts, no leverage. Paper trading only — no real SOL, no network, no
+clock, no randomness: the same bars always give the same orders.
+
+Verify with the kit: node cli/makefun.mjs grade-local --kit . --bot <repo>
+--driver process --worktree, then check determinism (two runs, identical
+action logs) and the grader sandbox (uid 65534, read-only repo).
